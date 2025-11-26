@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Genesys Cloud AI Token Calculator (No Scroll)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	    <!-- Chart.js CDN for the Pie Chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         :root {
             --primary: #FF4F1F; /* Genesys Orange */
@@ -42,6 +44,8 @@
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+			min-height: 60px; /* Ensure header height is fixed */
+
         }
 
         .navbar-brand {
@@ -253,6 +257,20 @@
             font-size: 1.1rem;
         }
         
+		        .chart-container {
+            flex-grow: 1; /* Allow chart area to expand */
+            min-height: 250px;
+            max-height: 40vh;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px dashed var(--border-color);
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+		
         /* Mobile adjustments: Enable scrolling for smaller screens */
         @media (max-width: 1023px) {
             body { overflow-y: auto; height: auto; }
@@ -289,7 +307,7 @@
                 </div>
             </div>
             <div class="input-item">
-                <div class="input-meta"><label>Agentic VA Interactions</label><span class="sub-label">1/token</span></div>
+                <div class="input-meta"><label>AI Guides</label><span class="sub-label">1/token</span></div>
                 <div class="input-wrapper">
                     <input type="number" id="agentic_interactions" value="0" oninput="calculate()">
                     <span class="token-display" id="agentic_tokens">0</span>
@@ -316,7 +334,7 @@
         <div class="input-section-title">Bots & Virtual Agent</div>
         <div class="input-grid-compact">
             <div class="input-item">
-                <div class="input-meta"><label>Voice Bot Minutes</label><span class="sub-label">17 min/token</span></div>
+                <div class="input-meta"><label>Voice Bot Minutes</label><span class="sub-label">17 mins/token</span></div>
                 <div class="input-wrapper">
                     <input type="number" id="bot_voice_min" value="0" min="0" oninput="calculate()">
                     <span class="token-display" id="bot_voice_tokens">0</span>
@@ -324,7 +342,7 @@
             </div>
             
             <div class="input-item">
-                <div class="input-meta"><label>Digital Bot Sessions</label><span class="sub-label">51 sess/token</span></div>
+                <div class="input-meta"><label>Digital Bot Sessions</label><span class="sub-label">51 sessions/token</span></div>
                 <div class="input-wrapper">
                     <input type="number" id="bot_digital_sess" value="0" min="0" oninput="calculate()">
                     <span class="token-display" id="bot_digital_tokens">0</span>
@@ -458,12 +476,36 @@
             <span class="metric-label" style="color: var(--primary); font-size: 0.9rem;">TOTAL BILLABLE TOKENS</span>
             <span class="metric-value highlight-value" style="font-size: 1.5rem; font-weight: 800;" id="billable_tokens">0</span>
         </div>
-
+        <h4 style="margin-top: 15px; margin-bottom: 5px; font-weight: 700; font-size: 1rem; color: var(--secondary);">Token Breakdown:</h4>
+        
+        <!-- Pie Chart will be rendered here -->
+        <div class="chart-container">
+            <canvas id="tokenPieChart"></canvas>
+            <div id="chart-placeholder" style="color: var(--text-muted); font-style: italic;">
+                Enter usage values to see the token distribution breakdown.
+            </div>
+        </div>
+		
         <div class="final-cost">
             <span class="label">ESTIMATED MONTHLY COST</span>
             <span class="value" id="final_total_cost">$0.00</span>
         </div>
-    </div> </div> <script>
+		
+		
+    </div> </div>
+
+
+
+	<script>
+	
+	let tokenPieChart = null;
+    const CHART_COLORS = [
+        '#FF4F1F', '#1B212A', '#009F8C', '#F7B731', '#925FEA',
+        '#FF6F61', '#4D4C7D', '#50B498', '#FFD700', '#B0C4DE',
+        '#8B0000', '#6A5ACD', '#4682B4', '#DAA520', '#C0C0C0',
+        '#FFB6C1', '#A0522D'
+    ];
+	
     // --- Helper Functions ---
     function getVal(id) {
         return parseFloat(document.getElementById(id).value) || 0;
@@ -484,15 +526,91 @@
         el.innerText = displayVal;
     }
 
+	// Pie Chat Calculation
+	function updatePieChart(tokenData) {
+        const ctx = document.getElementById('tokenPieChart').getContext('2d');
+        const placeholder = document.getElementById('chart-placeholder');
+        
+        const validData = tokenData.filter(d => d.value > 0);
+
+        if (validData.length === 0) {
+            if (tokenPieChart) {
+                tokenPieChart.destroy();
+                tokenPieChart = null;
+            }
+            placeholder.style.display = 'block';
+            return;
+        }
+
+        placeholder.style.display = 'none';
+
+        const labels = validData.map(d => d.label);
+        const data = validData.map(d => Math.ceil(d.value));
+
+        if (tokenPieChart) {
+            // Update existing chart
+            tokenPieChart.data.labels = labels;
+            tokenPieChart.data.datasets[0].data = data;
+            tokenPieChart.data.datasets[0].backgroundColor = CHART_COLORS.slice(0, validData.length);
+            tokenPieChart.update();
+        } else {
+            // Create new chart
+            tokenPieChart = new Chart(ctx, {
+                type: 'doughnut', // Changed to doughnut for better look
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Tokens Used',
+                        data: data,
+                        backgroundColor: CHART_COLORS.slice(0, validData.length),
+                        borderColor: '#ffffff',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                font: {
+                                    family: 'Inter',
+                                    size: 10
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Token Usage Distribution',
+                            font: {
+                                family: 'Inter',
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            color: '#1B212A'
+                        }
+                    }
+                }
+            });
+        }
+    }
+
     // --- Main Calculation Logic ---
     function calculate() {
-        
+        // Data structure to hold all individual token usages for the chart
+        let tokenUsages = [];
+
         // --- SECTION 1: BOTS & VIRTUAL AGENT ---
         const bot_v_tokens = getVal('bot_voice_min') / 17;
         setTxt('bot_voice_tokens', bot_v_tokens);
+        tokenUsages.push({ label: 'Voice Bot Minutes', value: bot_v_tokens });
+
 
         const bot_d_tokens = getVal('bot_digital_sess') / 51;
         setTxt('bot_digital_tokens', bot_d_tokens);
+        tokenUsages.push({ label: 'Digital Bot Sessions', value: bot_d_tokens });
+
         
         const va_v_sess = getVal('va_voice_sess');
         const va_d_sess = getVal('va_digital_sess');
@@ -502,9 +620,14 @@
 
         setTxt('va_voice_tokens', va_v_tokens); 
         setTxt('va_digital_tokens', va_d_tokens); 
-        
+           
+		tokenUsages.push({ label: 'Virtual Agent Voice', value: va_v_tokens });
+        tokenUsages.push({ label: 'Virtual Agent Digital', value: va_d_tokens });
+		
+		
         const agentic_tokens = getVal('agentic_interactions'); 
         setTxt('agentic_tokens', agentic_tokens);
+        tokenUsages.push({ label: 'Agentic VA Interactions', value: agentic_tokens });
         
         const total_messaging_bots = bot_v_tokens + bot_d_tokens + va_tokens + agentic_tokens;
         setTxt('total_messaging_bots', total_messaging_bots);
@@ -512,18 +635,28 @@
         // --- SECTION 2: OTHER AI, MESSAGING & PE ---
         const wa_tokens = getVal('whatsapp_msgs') / 200;
         setTxt('whatsapp_tokens', wa_tokens);
+        tokenUsages.push({ label: 'WhatsApp Messages', value: wa_tokens });
+
 
         const ai_sum_tokens = getVal('ai_summary_count') / 50;
         setTxt('ai_summary_tokens', ai_sum_tokens);
+		tokenUsages.push({ label: 'AI Summaries', value: ai_sum_tokens });
+
 
         const scoring_tokens = getVal('ai_scoring_evals') / 20;
         setTxt('ai_scoring_tokens', scoring_tokens);
+        tokenUsages.push({ label: 'AI Scoring', value: scoring_tokens });
+		
 
         const translate_tokens = getVal('ai_translate_count') / 2;
         setTxt('ai_translate_tokens', translate_tokens);
+		tokenUsages.push({ label: 'AI Translate', value: translate_tokens });
+
 
         const pe_tokens = getVal('pe_events') / 4000;
         setTxt('pe_tokens', pe_tokens);
+		tokenUsages.push({ label: 'Predictive Engagement', value: pe_tokens });
+
         
         const total_ai_services = wa_tokens + ai_sum_tokens + scoring_tokens + translate_tokens + pe_tokens;
         setTxt('total_ai_services', total_ai_services);
@@ -533,16 +666,24 @@
         const cop_conc_tokens = getVal('copilot_concurrent') * 60;
         setTxt('copilot_named_tokens', cop_named_tokens);
         setTxt('copilot_concurrent_tokens', cop_conc_tokens);
+        tokenUsages.push({ label: 'Agent Copilot (Named)', value: cop_named_tokens });
+        tokenUsages.push({ label: 'Agent Copilot (Concurrent)', value: cop_conc_tokens });
         
+		
+		
         const sta_n_tokens = getVal('sta_named') * 30;
         const sta_c_tokens = getVal('sta_concurrent') * 45;
         setTxt('sta_named_tokens', sta_n_tokens);
         setTxt('sta_concurrent_tokens', sta_c_tokens);
+		tokenUsages.push({ label: 'Analytics Named', value: sta_n_tokens });
+        tokenUsages.push({ label: 'Analytics Concurrent', value: sta_c_tokens });
 
         function calcSocial(id) { return getVal(id) / 200; }
         const social_tokens = calcSocial('fb_msgs') + calcSocial('insta_msgs') + calcSocial('x_msgs') + calcSocial('apple_msgs');
         setTxt('social_tokens_total', social_tokens);
-        
+        tokenUsages.push({ label: 'Social Messages', value: social_tokens });
+
+
         const total_analytics_social = cop_named_tokens + cop_conc_tokens + sta_n_tokens + sta_c_tokens + social_tokens;
         setTxt('total_analytics_social', total_analytics_social);
 
@@ -550,6 +691,9 @@
         const total_tokens = total_messaging_bots + total_ai_services + total_analytics_social;
         setTxt('total_tokens', total_tokens);
         
+		// --- CHART UPDATE ---
+        updatePieChart(tokenUsages);
+		
         // --- COST CALCULATION ---
         const orgType = document.getElementById('org_type').value;
         const freeAlloc = (orgType === 'Concurrent') ? 350 : 250;
@@ -561,6 +705,8 @@
         setTxt('free_allocation', freeAlloc);
         setTxt('billable_tokens', billable);
         setTxt('final_total_cost', gene_cost, true);
+		
+	
     }
 </script>
 
