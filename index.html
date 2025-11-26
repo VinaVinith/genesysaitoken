@@ -476,7 +476,13 @@
             <span class="metric-label" style="color: var(--primary); font-size: 0.9rem;">TOTAL BILLABLE TOKENS</span>
             <span class="metric-value highlight-value" style="font-size: 1.5rem; font-weight: 800;" id="billable_tokens">0</span>
         </div>
-        <h4 style="margin-top: 15px; margin-bottom: 5px; font-weight: 700; font-size: 1rem; color: var(--secondary);">Token Breakdown:</h4>
+
+		
+        <div class="final-cost">
+            <span class="label">ESTIMATED MONTHLY COST</span>
+            <span class="value" id="final_total_cost">$0.00</span>
+        </div>
+	        <h4 style="margin-top: 15px; margin-bottom: 5px; font-weight: 700; font-size: 1rem; color: var(--secondary);">Token Breakdown:</h4>
         
         <!-- Pie Chart will be rendered here -->
         <div class="chart-container">
@@ -484,13 +490,7 @@
             <div id="chart-placeholder" style="color: var(--text-muted); font-style: italic;">
                 Enter usage values to see the token distribution breakdown.
             </div>
-        </div>
-		
-        <div class="final-cost">
-            <span class="label">ESTIMATED MONTHLY COST</span>
-            <span class="value" id="final_total_cost">$0.00</span>
-        </div>
-		
+        </div>	
 		
     </div> </div>
 
