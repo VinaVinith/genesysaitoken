@@ -300,7 +300,7 @@
         <div class="input-section-title">Core AI & Messaging</div>
         <div class="input-grid-compact">
             <div class="input-item">
-                <div class="input-meta"><label>WhatsApp Messages</label><span class="sub-label">200/token</span></div>
+                <div class="input-meta"><label>WhatsApp Messages</label><span class="sub-label">400/token</span></div>
                 <div class="input-wrapper">
                     <input type="number" id="whatsapp_msgs" value="0" min="0" oninput="calculate()">
                     <span class="token-display" id="whatsapp_tokens">0</span>
@@ -421,7 +421,7 @@
             <div class="input-item" style="grid-column: span 3; display: block;">
                 <div class="input-meta" style="margin-bottom: 10px;">
                     <label>Social Messages</label>
-                    <span class="sub-label">200 messages/token</span>
+                    <span class="sub-label">400 messages/token</span>
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px;">
                     <input type="number" id="fb_msgs" placeholder="Facebook" oninput="calculate()" style="border-radius: 2px;">
@@ -633,7 +633,7 @@
         setTxt('total_messaging_bots', total_messaging_bots);
 
         // --- SECTION 2: OTHER AI, MESSAGING & PE ---
-        const wa_tokens = getVal('whatsapp_msgs') / 200;
+        const wa_tokens = getVal('whatsapp_msgs') / 400;
         setTxt('whatsapp_tokens', wa_tokens);
         tokenUsages.push({ label: 'WhatsApp Messages', value: wa_tokens });
 
@@ -678,7 +678,7 @@
 		tokenUsages.push({ label: 'Analytics Named', value: sta_n_tokens });
         tokenUsages.push({ label: 'Analytics Concurrent', value: sta_c_tokens });
 
-        function calcSocial(id) { return getVal(id) / 200; }
+        function calcSocial(id) { return getVal(id) / 400; }
         const social_tokens = calcSocial('fb_msgs') + calcSocial('insta_msgs') + calcSocial('x_msgs') + calcSocial('apple_msgs');
         setTxt('social_tokens_total', social_tokens);
         tokenUsages.push({ label: 'Social Messages', value: social_tokens });
