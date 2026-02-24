@@ -726,23 +726,6 @@
     align-items: center;
   }
 </style>
-        // --- Visitor Count ---
-
-<footer class="site-footer">
-  <div class="inner">
-    <span>© Your Site</span>
-    <span id="visitorCount">Visits (this browser): 0</span>
-  </div>
-</footer>
-
-<script>
-  (function () {
-    const key = "local_visit_count";
-    const count = (Number(localStorage.getItem(key)) || 0) + 1;
-    localStorage.setItem(key, String(count));
-    document.getElementById("visitorCount").textContent = `Visits (this browser): ${count}`;
-  })();
-</script>
 
 </body>
 </html>
