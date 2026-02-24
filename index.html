@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Genesys Cloud AI Token Calculator (No Scroll)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<footer style="position:fixed;bottom:0;left:0;right:0;padding:8px 16px;background:#fff;border-top:1px solid #ddd;">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <span>© Your Site</span>
+    <span id="visitorCount"></span>
+  </div>
+</footer>
+
+<script>
+  const key = "local_visit_count";
+  const count = (Number(localStorage.getItem(key)) || 0) + 1;
+  localStorage.setItem(key, String(count));
+  document.getElementById("visitorCount").textContent = `Visits (this browser): ${count}`;
+</script>
+	
 	    <!-- Chart.js CDN for the Pie Chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
