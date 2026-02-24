@@ -24,19 +24,21 @@
             box-sizing: border-box;
         }
 
-         body{
-    font-family: 'Inter', sans-serif;
-    background-color: var(--bg-light);
-    color: var(--text-main);
-    margin: 0;
-    padding: 0;
-    -webkit-font-smoothing: antialiased;
+  body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
 
-    overflow-y: auto;   /* ✅ enable vertical scrolling */
-    overflow-x: hidden; /* optional: prevent horizontal scroll */
-    height: auto;       /* ✅ don’t lock to 100vh */
-    min-height: 100vh;  /* keeps full height */
-  }
+  overflow-y: auto;     /* ✅ enable page scroll */
+  overflow-x: hidden;   /* ✅ avoid horizontal scroll */
+  min-height: 100vh;
+
+	    padding-bottom: 52px; /* ✅ prevents content hiding behind fixed footer */
+
+}
 
         /* HEADER */
         .navbar {
@@ -77,8 +79,9 @@
             display: grid;
             grid-template-columns: 1fr; 
             gap: 20px;
-            height: calc(100vh - 60px); /* Fill remaining viewport height */
-        }
+min-height: calc(100vh - 60px);
+height: auto;           /* ✅ allow page to grow */
+		}
         
         @media (min-width: 1024px) {
             .main-layout {
